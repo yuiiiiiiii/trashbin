@@ -6,7 +6,11 @@ import sklearn.datasets
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.svm import SVC
-from sklearn.metrics import f1_score
+
+'''
+the result isn't ideal 
+accuracy rate is only 0.2588
+'''
 
 def create_dataset(filename,size):
 	cnt = 0
@@ -34,6 +38,7 @@ if __name__ == '__main__':
 	'''
 	print "creating training datasets ..."
 	taobao_train = create_dataset('/home/yuyi/taobao/taobao/test.json',11100)
+        #print taobao_train.target.shape
 
 	#initialize BOW
 	count_vect = CountVectorizer()
@@ -58,10 +63,11 @@ if __name__ == '__main__':
 	'''
 	print "creating test datasets ..."
 	test_train = create_dataset('/home/yuyi/taobao/taobao/items.json',10872)
-	X_new_counts = count_vect.transform(test_train)
+	X_new_counts = count_vect.transform(test_train.data)
 	X_new_tfidf = tfidf_transformer.transform(X_new_counts)
+        print X_new_tfidf.shape
 
 	y_pred = clf.predict(X_new_tfidf)
-	print y_pred
-	# score = f1_score(test_train.target, y_pred, average='macro')
-	# print score
+	#print y_pred
+	score = np.mean(y_pred == test_train.target)
+        print score
