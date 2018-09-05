@@ -16,7 +16,7 @@ def create_dataset(filename,size):
 	for line in codecs.open(filename,'rb',encoding='utf8'):
 		item = json.loads(line)
 		examples.append(item['comment'])
-		taret[cnt] = mapping[item['label']]
+		target[cnt] = mapping[item['label']]
 		cnt += 1
 
 	dataset = sklearn.datasets.base.Bunch(data=examples,target=target)
