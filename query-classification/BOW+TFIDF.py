@@ -69,5 +69,7 @@ if __name__ == '__main__':
 
 	y_pred = clf.predict(X_new_tfidf)
 	#print y_pred
+
+
 	score = np.mean(y_pred == test_train.target)
         print score
