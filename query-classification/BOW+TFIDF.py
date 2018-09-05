@@ -32,6 +32,7 @@ if __name__ == '__main__':
 	3 -- sneakers 2329
 	total size -- 11100
 	'''
+	print "creating training datasets ..."
 	taobao_train = create_dataset('/home/yuyi/taobao/taobao/test.json',11100)
 
 	#initialize BOW
@@ -55,11 +56,12 @@ if __name__ == '__main__':
 	3 -- sneakers 2320
 	total size -- 10872
 	'''
-
+	print "creating test datasets ..."
 	test_train = create_dataset('/home/yuyi/taobao/taobao/items.json',10872)
 	X_new_counts = count_vect.transform(test_train)
 	X_new_tfidf = tfidf_transformer.transform(X_new_counts)
 
 	y_pred = clf.predict(X_new_tfidf)
-	score = f1_score(test_train.target, y_pred, average='macro')
-	print score
+	print y_pred
+	# score = f1_score(test_train.target, y_pred, average='macro')
+	# print score
