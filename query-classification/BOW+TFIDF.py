@@ -5,7 +5,7 @@ import codecs
 import sklearn.datasets
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.svm import SVC
+from sklearn.svm import LinearSVC
 
 '''
 the result isn't ideal 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 	X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
 
 	#applying the data to the SVM classifier
-	clf = SVC()
+	clf = LinearSVC()
 	clf.fit(X_train_tfidf, taobao_train.target)
 
 	#testing on new datasets
