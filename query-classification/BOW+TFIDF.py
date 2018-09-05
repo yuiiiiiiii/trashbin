@@ -9,7 +9,7 @@ from sklearn.svm import LinearSVC
 
 '''
 the result isn't ideal 
-accuracy rate is only 0.2588
+accuracy rate is only 0.489
 '''
 
 def create_dataset(filename,size):
@@ -69,7 +69,8 @@ if __name__ == '__main__':
 
 	y_pred = clf.predict(X_new_tfidf)
 	#print y_pred
-
+       # for y in y_pred:
+       #     print y
 
 	score = np.mean(y_pred == test_train.target)
         print score
