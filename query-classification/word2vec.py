@@ -112,6 +112,11 @@ def normalize(filename):
 
 	return labels,doc_words
 
+def train():
+	model = Word2Vec.load('wiki_zh.model')
+
+	w = filter(lambda x: x in model.vocab, doc.tokens)
+
 if __name__ == '__main__':
 
 	preprocessing()
