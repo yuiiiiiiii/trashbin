@@ -4,6 +4,7 @@ import json
 import codecs
 import emoji
 import re
+import pickle
 from stanfordcorenlp import StanfordCoreNLP
 import jieba
 from gensim.corpora import WikiCorpus
@@ -17,11 +18,11 @@ sys.setdefaultencoding('utf8')
 
 
 def preprocessing():
+    res = []
     i = 0
     converter = OpenCC('t2s')		#trannsorm into simplified Chinese
     #nlp = StanfordCoreNLP(r'/home/yuyi/stanford-corenlp-full-2018-02-27',lang='zh')
 
-    output = open('retry.txt', 'w')
     wiki =WikiCorpus('/home/yuyi/zhwiki-latest-pages-articles.xml.bz2', lemmatize=False, dictionary=[])#gensim里的维基百科处理类WikiCorpus
     for text in wiki.get_texts():#通过get_texts将维基里的每篇文章转换位1行text文本，并且去掉了标点符号等内容
         cleaned = ''
@@ -31,16 +32,18 @@ def preprocessing():
             cleaned += char
 
         if len(cleaned):
-            sentence = jieba.cut(cleaned)
-            output.write(' '.join(sentence) + "\n")
+            sentence = list(jieba.cut(cleaned))
+            res.append(sentence)
 
         i = i + 1
-        #if (i % 1000) == 0:
+        if (i % 1000) == 0:
         #if i == 10:
-           # print "Saved "+str(i)+" articles."
-           # break
+            print "Saved "+str(i)+" articles."
+          # break
     
-    output.close()
+    with open('wiki_zh.pkl','w') as f:
+        pickle.dump(res,f)
+
     print "Finished Saved "+str(i)+" articles."
     
 
