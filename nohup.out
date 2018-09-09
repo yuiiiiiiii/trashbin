@@ -1,0 +1,14 @@
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.264 seconds.
+Prefix dict has been built succesfully.
+Saved 10 articles.
+Finished Saved 10 articles.
+  File "query-classification/word2vec.py", line 43
+    output.close()
+    ^
+IndentationError: expected an indented block
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.251 seconds.
+Prefix dict has been built succesfully.

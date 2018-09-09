@@ -35,8 +35,10 @@ def preprocessing():
             output.write(' '.join(sentence) + "\n")
 
         i = i + 1
-        if (i % 1000) == 0:
-            print "Saved "+str(i)+" articles."
+        #if (i % 1000) == 0:
+        #if i == 10:
+           # print "Saved "+str(i)+" articles."
+           # break
     
     output.close()
     print "Finished Saved "+str(i)+" articles."
