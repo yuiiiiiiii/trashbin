@@ -1,82 +1,43 @@
-
-# from stanfordcorenlp  import StanfordCoreNLP
-# from mxnet.contrib.text.embedding import FastText
-# '''
-# firstly clean and normalize the text
-# '''
-
-
-# if __name__ == '__main__':
-#         total = 0
-# 	taobao_train = []
-        
-#         labels,doc_words = normalize('/home/yuyi/taobao/taobao/test.json')
-
-#         model = FastText('wiki.zh.vec')
-        
-#         for sentence in doc_words:
-#             print "calculating "+str(total)+" sentence vector..."
-#             cnt = len(sentence)
-#             sen_vec = np.zeros((300L,))
-#             for word in sentence:
-#                 #print  model.get_vecs_by_tokens(word).shape 
-#                 sen_vec = np.add(sen_vec,model.get_vecs_by_tokens(word))
-#             sen_vec = np.true_divide(sen_vec,cnt)
-#             taobao_train.append(sen_vec)
-#             total += 1
-
-#         clf = LinearSVC()
-#         clf.fit(taobao_train, labels)
-        
-#         print "training finished ..."
-#         test_train = []
-#         test_labels,test_doc=normalize('/home/yuyi/taobao/taobao/items.json')
-#         total = 0
-#         for sentence in test_doc:
-#             print "calculating "+str(total)+" test sentence vector..."
-#             cnt = len(sentence)
-#             sen_vec = np.zeros((300L,))
-#             for word in sentence:
-#                 #print  model.get_vecs_by_tokens(word).shape 
-#                 sen_vec = np.add(sen_vec,model.get_vecs_by_tokens(word))
-#             sen_vec = np.true_divide(sen_vec,cnt)
-#             test_train.append(sen_vec)
-#             total += 1
-        
-#         test_pred = clf.predict(test_data)
-#         score = np.mean(test_pred == test_labels)
-
-
-
-
-#!/usr/bin/env python
 # -*- coding: utf-8  -*-
-#将xml的wiki数据转换为text格式
 import multiprocessing
+import json
 import codecs
 import emoji
+import re
 from stanfordcorenlp import StanfordCoreNLP
+import jieba
 from gensim.corpora import WikiCorpus
-from opencc import openCC
+from opencc import OpenCC
 from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
 from sklearn.svm import LinearSVC
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 
 def preprocessing():
     i = 0
-    converter = openCC('t2s')		#trannsorm into simplified Chinese
-    nlp = StanfordCoreNLP(r'/home/yuyi/stanford-corenlp-full-2018-02-27',lang='zh')
+    converter = OpenCC('t2s')		#trannsorm into simplified Chinese
+    #nlp = StanfordCoreNLP(r'/home/yuyi/stanford-corenlp-full-2018-02-27',lang='zh')
 
-    output = open('wiki_zh.txt', 'w')
+    output = open('retry.txt', 'w')
     wiki =WikiCorpus('/home/yuyi/zhwiki-latest-pages-articles.xml.bz2', lemmatize=False, dictionary=[])#gensim里的维基百科处理类WikiCorpus
     for text in wiki.get_texts():#通过get_texts将维基里的每篇文章转换位1行text文本，并且去掉了标点符号等内容
-        text = converter.convert(text)
-        sentence = nlp.word_tokenize(text)
-        output.write(' '.join(sentence) + "\n")
-        i = i + 1
-        if (i % 10000 == 0):
-            print "Saved "+str(i)+" articles."
+        cleaned = ''
+        text = ''.join(text)
+        for char in text:
+            char  = converter.convert(char)
+            cleaned += char
 
+        if len(cleaned):
+            sentence = jieba.cut(cleaned)
+            output.write(' '.join(sentence) + "\n")
+
+        i = i + 1
+        if (i % 1000) == 0:
+            print "Saved "+str(i)+" articles."
+    
     output.close()
     print "Finished Saved "+str(i)+" articles."
     
@@ -86,10 +47,37 @@ def pretrain():
     indir = 'wiki_zh.txt'
     outdir = 'wiki_zh.model'
    
-    model = Word2Vec(LineSentence(inp), size= 300, window=5, min_count=5,
+    model = Word2Vec(LineSentence(indir), size= 300, window=5, min_count=5,
                      workers=multiprocessing.cpu_count()-1)
 
     model.save(outdir)
+
+
+def retrain():
+    stopwords = []
+    sentences = []
+    filtered_text = []
+    
+    with open('stopwords.txt','r') as f:
+        line = f.read().strip()
+        result = re.split(r"[\s\n]",line)
+
+#    print result        
+
+    punc = list("！？｡＂＃＄％＆＇（）＊＋，－／：；＜＝＞＠［＼］＾＿｀｛｜｝～｟｠｢｣､、〃》「」『』【】〔〕〖〗〘〙〚〛〜〝〞〟〰〾〿–—‘’‛“”„‟…‧﹏.!#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~")
+    #print punc
+
+    for line in codecs.open('/home/yuyi/taobao/taobao/test.json','rb',encoding='utf8'):
+         item = json.loads(line)
+         text = item['comment']
+         text = list(jieba.cut(text))
+         sentences.append(text)
+
+    model = Word2Vec.load('wiki_zh.model')
+    model.train(sentences,len(sentences),epochs = model.epochs)
+    
+    model.save('wiki_zh.model')
+
 
 
 def normalize(filename):
@@ -113,10 +101,14 @@ def normalize(filename):
 	return labels,doc_words
 
 def train():
-	model = Word2Vec.load('wiki_zh.model')
+	#model = Word2Vec.load('wiki_zh.model')
+        #print model[u'good']
+        #print model[u'shit']
 
-	w = filter(lambda x: x in model.vocab, doc.tokens)
+        for line in codecs.open('wiki_zh.txt','r',encoding = 'utf8'):
+            line = line.encode('utf8')
+            print str(line)
 
 if __name__ == '__main__':
-
-	preprocessing()
+    
+    preprocessing()
