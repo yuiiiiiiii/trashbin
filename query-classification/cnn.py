@@ -1,6 +1,9 @@
+# -*- coding: utf-8  -*-
 from __future__ import print_function
 from collections import Counter
 import jieba
+import codecs
+import json
 import itertools
 import numpy as np
 import re
@@ -36,9 +39,25 @@ def load_data_and_labels(file):
     out_text = file + '_text.pkl'
   
     with open(out_text,'w') as f:
-        f.dump(sentences)
+        pickle.dump(sentences,f)
     with open(out_label,'w') as f:
-        f.dump(labels)
+        pickle.dump(labels,f)
+
+def check(file):    
+    in_label = file + '_label.pkl'
+    in_text = file + '_text.pkl'
+  
+    f = open(in_text,'r')
+    text = pickle.load(f)
+    f.close()
+
+    f = open(in_label,'r')
+    labels = pickle.load(f)
+    f.close()
+
+    for sen in text:
+        for wd in sen:
+            print(wd)
 
 
 def pad_sentences(sentences, padding_word=""):
@@ -92,7 +111,6 @@ def cnn():
     Returns input vectors, labels, vocabulary, and inverse vocabulary.
     """
     # Load and preprocess data
-    sentences, labels = load_data_and_labels()
     sentences_padded = pad_sentences(sentences)
     vocabulary, vocabulary_inv = build_vocab(sentences_padded)
     x, y = build_input_data(sentences_padded, labels, vocabulary)
@@ -185,4 +203,5 @@ def cnn():
     cnn = sm
 
 if __name__ == '__main__':
-    load_data_and_labels('test')
+    
+    load_data_and_labels('items')
