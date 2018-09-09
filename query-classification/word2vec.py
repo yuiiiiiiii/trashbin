@@ -42,14 +42,41 @@ def preprocessing():
     
     output.close()
     print "Finished Saved "+str(i)+" articles."
+
+def getVec(file):
+	docv = []
+	senv = np.zeros(300)
+	model = Word2Vec.load('wiki_zh.model')
+	wv = model.wv
+
+	filename = os.path.join('/home/yuyi/taobao/taobao',file + '.' + 'json')
+
+	for line in codecs.open(filename,'rb',encoding='utf8'):
+		item = json.loads(line)
+ 		text = item['comment']
+ 		text = list(jieba.cut(text))
+		cnt = len(text)
+		 
+		for word in text:
+		 	if word in wv.vocab:
+		 		senv = np.add(model[word],senv)
+		 	else:
+		 		senv = np.add(senv,)
+ 		senv = np.true_divide(x,cnt)
+ 		docv.append(senv)
+
+ 	outdir = file + '.pkl'
+ 	with open(outdir,'wb') as f:
+ 		pickle.dump(docv,f)
     
 
 def pretrain():
+	with open('wiki_zh.pkl','r') as f:
+		sentences = pickle.load(f)
 
-    indir = 'wiki_zh.txt'
     outdir = 'wiki_zh.model'
    
-    model = Word2Vec(LineSentence(indir), size= 300, window=5, min_count=5,
+    model = Word2Vec(sentences, size= 300, window=5, min_count=1,
                      workers=multiprocessing.cpu_count()-1)
 
     model.save(outdir)
