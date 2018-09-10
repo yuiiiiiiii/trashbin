@@ -16,3 +16,27 @@ Building prefix dict from the default dictionary ...
 Loading model from cache /tmp/jieba.cache
 Loading model cost 0.255 seconds.
 Prefix dict has been built succesfully.
+Traceback (most recent call last):
+  File "query-classification/word2vec.py", line 156, in <module>
+    getVec('items')
+  File "query-classification/word2vec.py", line 55, in getVec
+    senv = np.zeros(300)
+NameError: global name 'np' is not defined
+Traceback (most recent call last):
+  File "query-classification/word2vec.py", line 156, in <module>
+    getVec('items')
+  File "query-classification/word2vec.py", line 55, in getVec
+    senv = np.zeros(300)
+NameError: global name 'np' is not defined
+Traceback (most recent call last):
+  File "query-classification/word2vec.py", line 157, in <module>
+    getVec('items')
+  File "query-classification/word2vec.py", line 72, in getVec
+    senv = np.true_divide(x,cnt)
+NameError: global name 'x' is not defined
+Traceback (most recent call last):
+  File "query-classification/word2vec.py", line 157, in <module>
+    getVec('items')
+  File "query-classification/word2vec.py", line 72, in getVec
+    senv = np.true_divide(x,cnt)
+NameError: global name 'x' is not defined

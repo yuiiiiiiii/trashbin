@@ -4,6 +4,7 @@ import json
 import codecs
 import emoji
 import re
+import numpy as np
 import pickle
 from stanfordcorenlp import StanfordCoreNLP
 import jieba
@@ -16,6 +17,10 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+
+'''
+ignoring unknown word
+'''
 
 def preprocessing():
     res = []
@@ -52,30 +57,47 @@ def getVec(file):
 	model = Word2Vec.load('wiki_zh.model')
 	wv = model.wv
 
-	filename = os.path.join('/home/yuyi/taobao/taobao',file + '.' + 'json')
+        with open('/home/yuyi/taobao/taobao/items_text.pkl','r') as f:
+            sentences = pickle.load(f)
 
-	for line in codecs.open(filename,'rb',encoding='utf8'):
-		item = json.loads(line)
- 		text = item['comment']
- 		text = list(jieba.cut(text))
-		cnt = len(text)
-		 
-		for word in text:
-		 	if word in wv.vocab:
-		 		senv = np.add(model[word],senv)
-		 	else:
-		 		senv = np.add(senv,)
- 		senv = np.true_divide(x,cnt)
- 		docv.append(senv)
+        for sentence in sentences:
+            cnt = len(sentence)
+            for word in sentence:
+	        if word in wv.vocab:
+		    senv = np.add(model[word],senv)
+		else:
+		    cnt -= 1
+                
+            if cnt > 0:
+                senv = np.true_divide(senv,cnt)
+ 	    docv.append(senv)
 
  	outdir = file + '.pkl'
  	with open(outdir,'wb') as f:
  		pickle.dump(docv,f)
     
+def getLabel(file):
+    labels = []
+    filename = file + '.json'
+
+    for line in codecs.open(filename,'r',encoding='utf8'):
+        item = json.loads(line)
+        label = item['label']
+        labels.append(label)
+
+    outdir = file + '_label.pkl'
+    with open(outdir,'w') as f:
+        pickle.dump(labels,f)
+        
 
 def pretrain():
-	with open('wiki_zh.pkl','r') as f:
-		sentences = pickle.load(f)
+    with open('wiki_zh.pkl','r') as f:
+	sentences = pickle.load(f)
+
+    with open('/home/yuyi/taobao/taobao/test_text.pkl') as f:
+        new_sentences = pickle.load(f)
+
+    sentences = sentences + new_sentences
 
     outdir = 'wiki_zh.model'
    
@@ -85,30 +107,6 @@ def pretrain():
     model.save(outdir)
 
 
-def retrain():
-    stopwords = []
-    sentences = []
-    filtered_text = []
-    
-    with open('stopwords.txt','r') as f:
-        line = f.read().strip()
-        result = re.split(r"[\s\n]",line)
-
-#    print result        
-
-    punc = list("！？｡＂＃＄％＆＇（）＊＋，－／：；＜＝＞＠［＼］＾＿｀｛｜｝～｟｠｢｣､、〃》「」『』【】〔〕〖〗〘〙〚〛〜〝〞〟〰〾〿–—‘’‛“”„‟…‧﹏.!#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~")
-    #print punc
-
-    for line in codecs.open('/home/yuyi/taobao/taobao/test.json','rb',encoding='utf8'):
-         item = json.loads(line)
-         text = item['comment']
-         text = list(jieba.cut(text))
-         sentences.append(text)
-
-    model = Word2Vec.load('wiki_zh.model')
-    model.train(sentences,len(sentences),epochs = model.epochs)
-    
-    model.save('wiki_zh.model')
 
 
 
@@ -133,14 +131,21 @@ def normalize(filename):
 	return labels,doc_words
 
 def train():
-	#model = Word2Vec.load('wiki_zh.model')
-        #print model[u'good']
-        #print model[u'shit']
+    model = Word2Vec.load('wiki_zh.model')
+    print model[u'阔腿裤']
+    print model[u'书包']
 
-        for line in codecs.open('wiki_zh.txt','r',encoding = 'utf8'):
-            line = line.encode('utf8')
-            print str(line)
+#        for line in codecs.open('wiki_zh.txt','r',encoding = 'utf8'):
+#            line = line.encode('utf8')
+#            print str(line)
+
+def test():
+    with open('wiki_zh.pkl','r') as f:
+        text = pickle.load(f)
+
+    print len(text)
+
 
 if __name__ == '__main__':
     
-    preprocessing()
+    getLabel('items')
